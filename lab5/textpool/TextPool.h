@@ -1,0 +1,8 @@
+//
+// Created by albert on 30.03.17.
+//
+
+#ifndef JIMP_EXERCISES_TEXTPOOL_H
+#define JIMP_EXERCISES_TEXTPOOL_H
+
+#endif //JIMP_EXERCISES_TEXTPOOL_H
