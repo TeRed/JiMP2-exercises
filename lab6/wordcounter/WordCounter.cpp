@@ -3,12 +3,12 @@
 //
 
 #include <iostream>
-#include "Counter.h"
+#include "WordCounter.h"
 
 using ::std::ifstream;
 
 
-namespace abc{
+namespace datastructures{
     Word::Word(){
         word = "";
     }
@@ -20,6 +20,9 @@ namespace abc{
     }
     Counts::Counts() {
         counts = 1;
+    }
+    Counts::Counts(int x) {
+        counts = x;
     }
     int Counts::get_counts() const{
         return counts;
@@ -56,6 +59,23 @@ namespace abc{
         in.close();
     }
 
+    WordCounter::WordCounter(initializer_list<Word> initializer_list){
+//        initializer_list <Word>::iterator initializer_list_it;
+        list <pair<Counts, Word>>::iterator word_list_it;
+
+        for(auto initializer_list_it = initializer_list.begin(); initializer_list_it != initializer_list.end(); ++initializer_list_it){
+            for(word_list_it = word_list.begin(); word_list_it != word_list.end(); ++word_list_it){
+                if((*word_list_it).second == (*initializer_list_it)){
+                    (*word_list_it).first++;
+                    break;
+                }
+            }
+            if(word_list_it == word_list.end()){
+                word_list.push_back({Counts(), (*initializer_list_it)});
+            }
+        }
+    }
+
     int WordCounter::operator[](string word) {
         list <pair<Counts, Word>>::iterator it;
         for(it = word_list.begin(); it != word_list.end(); ++it){
@@ -67,6 +87,33 @@ namespace abc{
     void WordCounter::sort_desc(){
         word_list.sort();
         word_list.reverse();
+    }
+
+
+    int WordCounter::DistinctWords() const {
+        return word_list.size();
+    }
+
+    int WordCounter::TotalWords() {
+        int total = 0;
+        list <pair<Counts, Word>>::iterator it;
+
+        for(it = word_list.begin(); it != word_list.end(); ++it){
+            total += (*it).first.get_counts();
+        }
+
+        return total;
+    }
+
+    set<Word> WordCounter::Words() {
+        set<Word> to_return;
+        list <pair<Counts, Word>>::iterator it;
+
+        for(it = word_list.begin(); it != word_list.end(); ++it){
+            to_return.insert((*it).second);
+        }
+
+        return to_return;
     }
 
     void alone_word(string &word){
@@ -88,32 +135,26 @@ namespace abc{
     }
 
     bool operator<(const Word& wrd1, const Word& wrd2){
-        if(wrd1.get_word() < wrd2.get_word()) return true;
-        return false;
+        return (wrd1.get_word() < wrd2.get_word());
     }
 
     bool operator>(const Word& wrd1, const Word& wrd2){
-        if(wrd1.get_word() > wrd2.get_word()) return true;
-        return false;
+        return (wrd1.get_word() > wrd2.get_word());
     }
 
     bool operator==(const Word& wrd1, const Word& wrd2){
-        if(wrd1.get_word() == wrd2.get_word()) return true;
-        return false;
+        return (wrd1.get_word() == wrd2.get_word());
     }
 
     bool operator<(const Counts& cnt1, const Counts& cnt2){
-        if(cnt1.get_counts() < cnt2.get_counts()) return true;
-        return false;
+        return (cnt1.get_counts() < cnt2.get_counts());
     }
 
     bool operator>(const Counts& cnt1, const Counts& cnt2){
-        if(cnt1.get_counts() > cnt2.get_counts()) return true;
-        return false;
+        return (cnt1.get_counts() > cnt2.get_counts());
     }
 
     bool operator==(const Counts& cnt1, const Counts& cnt2){
-        if(cnt1.get_counts() == cnt2.get_counts()) return true;
-        return false;
+        return (cnt1.get_counts() == cnt2.get_counts());
     }
 }
