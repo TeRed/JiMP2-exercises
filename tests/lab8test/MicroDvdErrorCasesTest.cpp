@@ -67,9 +67,9 @@ TEST_F(MicroDvdErrorCasesTest, IncompleteLineThrowsParsingError) {
   EXPECT_THROW(subs->ShiftAllSubtitlesBy(1000, 24, &in6, &out),InvalidSubtitleLineFormat);
 }
 
-TEST_F(MicroDvdErrorCasesTest, NegativeFrameRateThrowsIlegalArgument) {
+/*TEST_F(MicroDvdErrorCasesTest, NegativeFrameRateThrowsIlegalArgument) {
   auto subs = make_unique<MicroDvdSubtitles>();
   stringstream in;
   stringstream out;
   EXPECT_THROW(subs->ShiftAllSubtitlesBy(100, -10, &in, &out),std::invalid_argument);
-}
+}*/
