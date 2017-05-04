@@ -2,20 +2,24 @@
 // Created by przemek on 06.04.17.
 //
 
-#ifndef JIMP_EXERCISES_COUNTER_H
-#define JIMP_EXERCISES_COUNTER_H
+#ifndef JIMP_EXERCISES_WORDCOUNTER_H
+#define JIMP_EXERCISES_WORDCOUNTER_H
 
 #include <string>
 #include <list>
 #include <fstream>
 #include <iomanip>
+#include <set>
+#include <initializer_list>
 
 using ::std::string;
 using ::std::list;
 using ::std::pair;
 using ::std::ostream;
+using ::std::initializer_list;
+using ::std::set;
 
-namespace abc{
+namespace datastructures{
     class Word{
     private:
         string word;
@@ -31,6 +35,7 @@ namespace abc{
         int counts;
     public:
         Counts();
+        Counts(int);
         ~Counts(){};
         int get_counts() const;
 
@@ -46,8 +51,12 @@ namespace abc{
         WordCounter(){};
         ~WordCounter(){};
         WordCounter(string path);
+        WordCounter(initializer_list<Word> initializer_list);
         int operator[](string);
         void sort_desc();
+        int DistinctWords() const;
+        int TotalWords(); //const?
+        set<Word> Words();
     };
 
     void alone_word(string &word);
@@ -60,4 +69,4 @@ namespace abc{
     bool operator==(const Counts& cnt1, const Counts& cnt2);
 }
 
-#endif //JIMP_EXERCISES_COUNTER_H
+#endif //JIMP_EXERCISES_WORDCOUNTER_H

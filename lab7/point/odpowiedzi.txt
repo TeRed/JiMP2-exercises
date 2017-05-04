@@ -1,0 +1,18 @@
+Zadanie 5
+
+Przy wywołaniu konstruktora obiektu klasy dziedziczącej,
+najpierw wywoływany jest konstruktor klasy bazowej a potem kontruktor klasy potomnej.
+
+Przy wywołaniu destruktora jest odwrotnie.
+Najpierw wywoływany jest destruktor klasy potomnej a potem destruktor klasy bazowej.
+
+Zadanie 6
+
+Przy wywołaniu punkt2d.distance(punkt3d) punkt3d traktowany jest jak punkt 2d (rzutowany).
+Liczony jest dystans między punktem 2d oraz punktem 2d stworzonym z atrybutów punktu 3d dziedziczonych po punkcie 2d
+(drugi punkt 2d jest obiektem klasy bazowej zawartej w punkcie 3d).
+
+Zadanie 7
+
+Odpowiedź jest podobna jak w zadaniu 6.
+Punkt 3d jest rzutowany na punkt 2d i wywoływany jest operator << dla klasy bazowej zawartej w punkcie 3d.
