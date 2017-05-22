@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <gtest/gtest.h>
 #include <MemLeakTest.h>
-#include <Scheduler.h>
+#include "Scheduler.h"
 
 using ::academia::Schedule;
 using ::academia::SchedulingItem;
