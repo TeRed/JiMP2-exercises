@@ -35,8 +35,8 @@ namespace academia {
     Schedule Schedule::OfTeacher(int teacher_id) const {
         Schedule schedule;
 
-        for(auto it = SchedulingItemVector.begin(); it != SchedulingItemVector.end(); ++it) {
-            if((*it).TeacherId() == teacher_id) schedule.InsertScheduleItem(*it);
+        for(auto it : SchedulingItemVector) {
+            if(it.TeacherId() == teacher_id) schedule.InsertScheduleItem(it);
         }
 
         return schedule;
@@ -45,8 +45,8 @@ namespace academia {
     Schedule Schedule::OfRoom(int room_id) const {
         Schedule schedule;
 
-        for(auto it = SchedulingItemVector.begin(); it != SchedulingItemVector.end(); ++it) {
-            if((*it).RoomId() == room_id) schedule.InsertScheduleItem(*it);
+        for(auto it : SchedulingItemVector) {
+            if(it.RoomId() == room_id) schedule.InsertScheduleItem(it);
         }
 
         return schedule;
@@ -55,8 +55,8 @@ namespace academia {
     Schedule Schedule::OfYear(int year) const {
         Schedule schedule;
 
-        for(auto it = SchedulingItemVector.begin(); it != SchedulingItemVector.end(); ++it) {
-            if((*it).Year() == year) schedule.InsertScheduleItem(*it);
+        for(auto it : SchedulingItemVector) {
+            if(it.Year() == year) schedule.InsertScheduleItem(it);
         }
 
         return schedule;
@@ -67,17 +67,14 @@ namespace academia {
     }
 
     std::vector<int> Schedule::AvailableTimeSlots(int n_time_slots) const {
-        vector <int> availableTimeSlots;
-        bool available[20];
+        vector<int> availableTimeSlots;
 
-        for(int i = 0; i < 20; i++) available[i] = true;
-
-        for(auto it = SchedulingItemVector.begin(); it != SchedulingItemVector.end(); ++it) {
-            available[(*it).TimeSlot()-1] = false;
-        }
-
-        for(int i = 0; i < n_time_slots; i++) {
-            if(available[i]) availableTimeSlots.push_back(i+1);
+        for(int slot = 1; slot <= n_time_slots; slot++) {
+            bool free_slot = true;
+            for(auto it : SchedulingItemVector) {
+                if(it.TimeSlot() == slot) free_slot = false;
+            }
+            if(free_slot) availableTimeSlots.push_back(slot);
         }
 
         return availableTimeSlots;
@@ -86,6 +83,7 @@ namespace academia {
     size_t Schedule::Size() const {
         return SchedulingItemVector.size();
     }
+
     SchedulingItem Schedule::operator[](int i) const {
         return SchedulingItemVector[i];
     }
@@ -97,69 +95,36 @@ namespace academia {
     Schedule GreedyScheduler::PrepareNewSchedule(const std::vector<int> &rooms,
                                 const std::map<int, std::vector<int>> &teacher_courses_assignment,
                                 const std::map<int, std::set<int>> &courses_of_year, int n_time_slots) {
-        /*Schedule schedule;
-        int room_counter = 1, slot_counter = 1;
-        vector<int> used_teachers;
-
-        for(auto years_it = courses_of_year.begin(); years_it != courses_of_year.end(); ++years_it) {
-            for(auto courses_it = (*years_it).second.begin(); courses_it != (*years_it).second.end(); ++courses_it) {
-
-                for(auto teacher_it = teacher_courses_assignment.begin(); teacher_it != teacher_courses_assignment.end(); ++teacher_it) {
-                    for(auto t_courses_it = (*teacher_it).second.begin(); t_courses_it != (*teacher_it).second.end(); ++t_courses_it) {
-
-                        if((*courses_it) == (*t_courses_it) && std::find(std::begin(used_teachers), std::end(used_teachers), (*teacher_it).first) == std::end(used_teachers)) {
-                            schedule.InsertScheduleItem(SchedulingItem{*courses_it, (*teacher_it).first, room_counter, slot_counter, (*years_it).first});
-                            used_teachers.push_back((*teacher_it).first);
-                            room_counter++;
-                            if(room_counter > rooms.size()){
-                                room_counter = 1;
-                                slot_counter++;
-                                if(slot_counter > n_time_slots) throw NoViableSolutionFound {};
-                                used_teachers.clear();
-                            }
-                        }
-
-                    }
-                }
-
-            }
-        }*/
-
-        int t_courses = 0;
-
-        for (auto teacher_it = teacher_courses_assignment.begin(); teacher_it != teacher_courses_assignment.end(); ++teacher_it)
-            t_courses += (*teacher_it).second.size();
-
-        if(n_time_slots * rooms.size() < t_courses) throw NoViableSolutionFound {};
-
 
         Schedule schedule;
 
-        map<int, vector<int>> teachers_copy = teacher_courses_assignment;
-        vector<int> rooms_indicator;
-
-        for(int i = 0; i < n_time_slots; i++) rooms_indicator.push_back(0);
-
-        int slot_counter = 1;
-
-        for(auto years_it = courses_of_year.begin(); years_it != courses_of_year.end(); ++years_it) {
-            for (auto courses_it = (*years_it).second.begin(); courses_it != (*years_it).second.end(); ++courses_it) {
-
-                for (auto teacher_it = teachers_copy.begin(); teacher_it != teachers_copy.end(); ++teacher_it) {
-                    for (auto t_courses_it = (*teacher_it).second.begin(); t_courses_it != (*teacher_it).second.end(); ++t_courses_it) {
-                        if((*courses_it) == (*t_courses_it) && (*t_courses_it) != -slot_counter) {
-                            schedule.InsertScheduleItem(SchedulingItem{*courses_it, (*teacher_it).first, rooms[rooms_indicator[slot_counter-1]], slot_counter, (*years_it).first});
-                            rooms_indicator[slot_counter-1]++;
-                            if(rooms_indicator[slot_counter-1] > rooms.size()) throw NoViableSolutionFound {};
-                            (*t_courses_it) = -slot_counter;
-                            slot_counter++;
-                            if(slot_counter > n_time_slots) throw NoViableSolutionFound {};
+        for (auto &teacher : teacher_courses_assignment) {
+            for (auto &course : teacher.second) {
+                bool used_teacher = false;
+                for (auto &year : courses_of_year) {
+                    if(used_teacher) break;
+                    if (std::find(year.second.begin(), year.second.end(), course) != year.second.end()) {
+                        for(auto &room : rooms) {
+                            if(used_teacher) break;
+                            for (int slot = 1; slot <= n_time_slots; slot++) {
+                                if(used_teacher) break;
+                                if(!checkAvailability(schedule.OfTeacher(teacher.first).AvailableTimeSlots(n_time_slots), slot)) continue;
+                                if(!checkAvailability(schedule.OfYear(year.first).AvailableTimeSlots(n_time_slots), slot)) continue;
+                                if(!checkAvailability(schedule.OfRoom(room).AvailableTimeSlots(n_time_slots), slot)) continue;
+                                schedule.InsertScheduleItem(SchedulingItem{course, teacher.first, room, slot, year.first});
+                                used_teacher = true;
+                            }
                         }
                     }
                 }
+                if(!used_teacher) throw NoViableSolutionFound();
             }
-            slot_counter = 1;
         }
+
         return schedule;
+    }
+
+    bool GreedyScheduler::checkAvailability(const std::vector<int> &slots, int slot) const {
+        return std::find(slots.begin(), slots.end(), slot) != slots.end();
     }
 }

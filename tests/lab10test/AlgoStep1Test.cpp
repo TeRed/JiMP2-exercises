@@ -7,7 +7,7 @@
 #include <vector>
 #include <utility>
 #include <MemLeakTest.h>
-#include <Algo.h>
+#include "Algo.h"
 
 using algo::CopyInto;
 using TestParam = std::tuple<std::vector<int>, int, std::vector<int>>;

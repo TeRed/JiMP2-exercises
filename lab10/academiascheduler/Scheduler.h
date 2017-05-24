@@ -27,7 +27,6 @@ namespace academia {
     public:
         SchedulingItem(){};
         SchedulingItem(int, int, int, int, int);
-        ~SchedulingItem(){};
         int CourseId() const;
         int TeacherId() const;
         int RoomId() const;
@@ -47,7 +46,7 @@ namespace academia {
         void InsertScheduleItem(const SchedulingItem &item);
         std::vector<int> AvailableTimeSlots(int n_time_slots) const;
         size_t Size() const;
-        SchedulingItem operator[] (int i) const;
+        SchedulingItem operator[] (int index) const;
     };
 
     class Scheduler {
@@ -56,9 +55,12 @@ namespace academia {
         virtual Schedule PrepareNewSchedule(const std::vector<int> &rooms,
                                     const std::map<int, std::vector<int>> &teacher_courses_assignment,
                                     const std::map<int, std::set<int>> &courses_of_year, int n_time_slots) = 0;
+        virtual ~Scheduler(){};
     };
 
     class GreedyScheduler : public Scheduler {
+    private:
+        bool checkAvailability(const std::vector<int> &slots, int slot) const;
     public:
         GreedyScheduler(){};
         virtual Schedule PrepareNewSchedule(const std::vector<int> &rooms,

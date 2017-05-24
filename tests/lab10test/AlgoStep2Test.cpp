@@ -7,7 +7,7 @@
 #include <vector>
 #include <utility>
 #include <MemLeakTest.h>
-#include <Algo.h>
+#include "Algo.h"
 
 using algo::Contains;
 using TestParam = std::tuple<std::vector<int>, int, bool>;
