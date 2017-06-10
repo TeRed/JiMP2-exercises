@@ -29,7 +29,7 @@ namespace academia {
     }
 
     bool operator!=(const Teacher &a, const Teacher &b) {
-        return (a.teacher_id != b.teacher_id && a.name != b.name && a.department != b.department);
+        return (a.teacher_id != b.teacher_id || a.name != b.name || a.department != b.department);
     }
 
     bool operator==(const Teacher &a, const Teacher &b) {
@@ -62,6 +62,6 @@ namespace academia {
         std::hash<string> hashString;
         std::hash<int> hashInt;
 
-        return hashInt(teacher.Id())*hashString(teacher.Name())*7 + hashString(teacher.Department())*17;
+        return hashInt(teacher.Id())*7 + hashString(teacher.Name())*41 + hashString(teacher.Department())*59;
     }
 }
