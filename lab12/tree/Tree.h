@@ -10,41 +10,27 @@
 #include <algorithm>
 
 namespace tree {
-    template<class T> class Tree;
-    template<class T> class Node;
-
-    template<class T>
-    bool operator<(const Node<T> &a, const Node<T> &b) {
-        return (a.value < b.value);
-    }
-
-    template<class T>
-    bool operator!=(const Node<T> &a, const Node<T> &b) {
-        return (a.value != b.value);
-    }
+    template <class T> class Tree;
+    template <class T> class InOrderTreeIterator;
+    template <class T> class PostOrderTreeIterator;
+    template <class T> class PreOrderTreeIterator;
 
     template<class T>
     class Node {
-    public:
-        Node();
-        Node(const T &val);
-        ~Node();
     private:
-        friend class Tree<T>;
-        friend bool operator< <>(const Node<T> &a, const Node<T> &b);
-        friend bool operator!= <>(const Node<T> &a, const Node<T> &b);
         T value;
-        Node<T> *right;
-        Node<T> *left;
+        std::unique_ptr<Node<T>> right;
+        std::unique_ptr<Node<T>> left;
+    public:
+        Node(const T &value);
+
+        friend class Tree<T>;
+        friend class InOrderTreeIterator<T>;
+        friend class PostOrderTreeIterator<T>;
+        friend class PreOrderTreeIterator<T>;
     };
 
-    template<class T>
-    Node<T>::Node() {
-        right = nullptr;
-        left = nullptr;
-    }
-
-    template<class T>
+    template <class T>
     Node<T>::Node(const T &value) {
         this->value = value;
         right = nullptr;
@@ -52,36 +38,35 @@ namespace tree {
     }
 
     template<class T>
-    Node<T>::~Node() {
-        delete right;
-        delete left;
-    }
-
-    template<class T>
     class Tree {
-    public:
-        Tree();
-        Tree(std::initializer_list<T> list);
-        ~Tree();
-        void Insert(const T &e);
-        bool Find(const T &e);
-        size_t Depth() const;
-        size_t Size() const;
-        T Value() const;
     private:
-        Node<T>* root;
+        std::unique_ptr<Node<T>> root;
         size_t size;
         size_t depth;
+    public:
+        Tree(): root(nullptr), size(0), depth(0) {};
+        Tree(const T &value);
+        Tree(const std::initializer_list<T> initializer_list);
+
+        void Insert(const T & value);
+        bool Find(const T & value) const;
+
+        size_t Depth() const;
+        size_t Size() const;
+
+        T Value() const;
+        Node<T>* Root() const;
     };
 
     template<class T>
-    Tree<T>::Tree() {
+    Tree<T>::Tree(const T &value) {
         root = nullptr;
         size = depth = 0;
+        Insert(value);
     }
 
     template<class T>
-    Tree<T>::Tree(std::initializer_list<T> list) {
+    Tree<T>::Tree(const std::initializer_list<T> list) {
         root = nullptr;
         size = depth = 0;
         for(const auto &n : list) {
@@ -90,48 +75,38 @@ namespace tree {
     }
 
     template<class T>
-    Tree<T>::~Tree() {
-        delete root;
-    }
-
-    template<class T>
-    void Tree<T>::Insert(const T &e){
+    void Tree<T>::Insert(const T & value){
         size++;
-        Node<T> *node = new Node<T>;
-        node->value = e;
 
-        if(!root) {
-            root = node;
+        Node<T>* y = nullptr;
+        auto x = root.get();
+        size_t new_depth = 1;
+
+        while(x) {
+            y = x;
+            if(value < x->value) x = x->left.get();
+            else x = x->right.get();
+            new_depth++;
+        }
+
+        if(y == nullptr){
+            root = std::make_unique<Node<T>>(value);
             depth = 1;
             return;
         }
+        else if(value < y->value) y->left = std::make_unique<Node<T>>(value);
+        else y->right = std::make_unique<Node<T>>(value);
 
-        size_t actual_depth = 1;
-
-        Node<T> *current = root;
-
-        while(current->left != nullptr && current->right != nullptr) {
-            if(*node < *current) current = current->left;
-            else current = current->right;
-            actual_depth++;
-        }
-
-        if(*node < *current) current->left = node;
-        else current->right = node;
-
-        depth = std::max(++actual_depth, depth);
-
-        return;
+        depth = std::max(new_depth, depth);
     }
 
     template<class T>
-    bool Tree<T>::Find(const T &e){
-        Node<T> *current = root;
-        Node<T> node(e);
+    bool Tree<T>::Find(const T & value) const {
+        Node<T>* current = root.get();
 
-        while(*current != node && current != nullptr) {
-            if(node < (*current)) current = current->left;
-            else current = current->right;
+        while(current->value != value && current != nullptr) {
+            if(value < (*current)) current = current->left.get();
+            else current = current->right.get();
         }
 
         return current;
@@ -151,5 +126,11 @@ namespace tree {
     T Tree<T>::Value() const {
         return root->value;
     }
+
+    template<class T>
+    Node<T>* Tree<T>::Root() const {
+        return root.get();
+    }
+
 }
 #endif //JIMP_EXERCISES_BST_H
