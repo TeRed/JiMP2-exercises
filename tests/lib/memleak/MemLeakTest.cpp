@@ -28,10 +28,3 @@ MemLeakTest::~MemLeakTest() {
   MemLeak::Instance().ClearState();
   EXPECT_TRUE(verification) << message;
 }
-
-void MemLeakTest::StopRecording() {
-  MemLeak::Instance().StopRecording();
-}
-void MemLeakTest::ResumeRecording() {
-  MemLeak::Instance().StartRecording();
-}
